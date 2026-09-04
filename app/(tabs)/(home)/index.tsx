@@ -11,12 +11,13 @@ import {
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Plus, PawPrint, Camera, ChevronRight, Dog } from 'lucide-react-native';
+import { Plus, PawPrint, Camera, ChevronRight, Crown } from 'lucide-react-native';
 import { Image } from 'expo-image';
 import { COLORS, SPECIES_COLORS } from '@/constants/Colors';
 import { supabase, Pet } from '@/utils/supabase';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
 import { PetCardSkeleton } from '@/components/SkeletonLoader';
+import { useSubscription } from '@/contexts/SubscriptionContext';
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -309,6 +310,7 @@ export default function MyPetsScreen() {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const { isPro } = useSubscription();
 
   const bg = isDark ? COLORS.dark.background : COLORS.background;
 
@@ -351,22 +353,48 @@ export default function MyPetsScreen() {
     router.push('/pet/add');
   };
 
-  const AddButton = () => (
-    <TouchableOpacity
-      onPress={handleAddPet}
-      style={{
-        width: 36,
-        height: 36,
-        borderRadius: 18,
-        backgroundColor: COLORS.primary,
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginRight: 4,
-      }}
-      accessibilityLabel="Add pet"
-    >
-      <Plus size={20} color="#FFFFFF" />
-    </TouchableOpacity>
+  const handleGoPremium = () => {
+    console.log('[MyPets] Go Premium button pressed');
+    router.push('/paywall');
+  };
+
+  const HeaderRight = () => (
+    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginRight: 4 }}>
+      {!isPro ? (
+        <TouchableOpacity
+          onPress={handleGoPremium}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 5,
+            backgroundColor: COLORS.accentMuted,
+            paddingHorizontal: 10,
+            paddingVertical: 6,
+            borderRadius: 10,
+          }}
+          accessibilityLabel="Go Premium"
+        >
+          <Crown size={14} color={COLORS.accent} />
+          <Text style={{ fontSize: 12, fontWeight: '700', color: COLORS.accent }}>
+            Pro
+          </Text>
+        </TouchableOpacity>
+      ) : null}
+      <TouchableOpacity
+        onPress={handleAddPet}
+        style={{
+          width: 36,
+          height: 36,
+          borderRadius: 18,
+          backgroundColor: COLORS.primary,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        accessibilityLabel="Add pet"
+      >
+        <Plus size={20} color="#FFFFFF" />
+      </TouchableOpacity>
+    </View>
   );
 
   return (
@@ -374,7 +402,7 @@ export default function MyPetsScreen() {
       <Stack.Screen
         options={{
           title: 'My Pets',
-          headerRight: () => <AddButton />,
+          headerRight: () => <HeaderRight />,
         }}
       />
       {loading ? (

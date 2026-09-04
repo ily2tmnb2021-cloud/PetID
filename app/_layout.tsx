@@ -15,6 +15,7 @@ import {
 } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { WidgetProvider } from '@/contexts/WidgetContext';
+import { SubscriptionProvider } from '@/contexts/SubscriptionContext';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { supabase } from '@/utils/supabase';
 import { COLORS } from '@/constants/Colors';
@@ -98,6 +99,7 @@ export default function RootLayout() {
         <SafeAreaProvider>
           <WidgetProvider>
             <GestureHandlerRootView style={{ flex: 1 }}>
+            <SubscriptionProvider>
               <Stack>
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 <Stack.Screen
@@ -162,8 +164,16 @@ export default function RootLayout() {
                     headerTitle: '',
                   }}
                 />
+                <Stack.Screen
+                  name="paywall"
+                  options={{
+                    presentation: 'modal',
+                    headerShown: false,
+                  }}
+                />
               </Stack>
               <SystemBars style="auto" />
+            </SubscriptionProvider>
             </GestureHandlerRootView>
           </WidgetProvider>
         </SafeAreaProvider>
