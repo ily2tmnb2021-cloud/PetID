@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   TouchableOpacity,
   useColorScheme,
   Animated,
@@ -258,82 +257,78 @@ export default function MapScreen() {
         showsUserLocation
       />
 
-      {/* Top bar */}
-      <View
+      {/* Inbox button — top-right */}
+      <AnimatedPressable
+        onPress={handleInbox}
         style={{
           position: 'absolute',
           top: insets.top + 8,
-          left: 0,
-          right: 0,
-          paddingHorizontal: 16,
-          flexDirection: 'row',
-          alignItems: 'center',
+          right: 16,
+        }}
+      >
+        <View
+          style={{
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            backgroundColor: isDark ? COLORS.dark.surface : COLORS.surface,
+            alignItems: 'center',
+            justifyContent: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.1,
+            shadowRadius: 4,
+            elevation: 3,
+            borderWidth: 1,
+            borderColor: borderColor,
+          }}
+        >
+          <Mail size={18} color={textColor} />
+        </View>
+      </AnimatedPressable>
+
+      {/* Vertical filter pills — left side */}
+      <View
+        style={{
+          position: 'absolute',
+          top: insets.top + 70,
+          left: 12,
+          flexDirection: 'column',
           gap: 8,
         }}
       >
-        <View style={{ flex: 1 }}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8, paddingRight: 8 }}
-          >
-            {FILTERS.map((f) => {
-              const isActive = filter === f.key;
-              return (
-                <AnimatedPressable key={f.key} onPress={() => handleFilterPress(f.key)}>
-                  <View
-                    style={{
-                      backgroundColor: isActive ? COLORS.primary : (isDark ? COLORS.dark.surface : COLORS.surface),
-                      paddingHorizontal: 14,
-                      paddingVertical: 8,
-                      borderRadius: 20,
-                      borderWidth: 1,
-                      borderColor: isActive ? COLORS.primary : borderColor,
-                      shadowColor: '#000',
-                      shadowOffset: { width: 0, height: 2 },
-                      shadowOpacity: 0.1,
-                      shadowRadius: 4,
-                      elevation: 3,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: 13,
-                        fontWeight: '600',
-                        color: isActive ? '#FFFFFF' : textColor,
-                      }}
-                    >
-                      {f.label}
-                    </Text>
-                  </View>
-                </AnimatedPressable>
-              );
-            })}
-          </ScrollView>
-        </View>
-
-        {/* Inbox button */}
-        <AnimatedPressable onPress={handleInbox}>
-          <View
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 20,
-              backgroundColor: isDark ? COLORS.dark.surface : COLORS.surface,
-              alignItems: 'center',
-              justifyContent: 'center',
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.1,
-              shadowRadius: 4,
-              elevation: 3,
-              borderWidth: 1,
-              borderColor: borderColor,
-            }}
-          >
-            <Mail size={18} color={textColor} />
-          </View>
-        </AnimatedPressable>
+        {FILTERS.map((f) => {
+          const isActive = filter === f.key;
+          return (
+            <AnimatedPressable key={f.key} onPress={() => handleFilterPress(f.key)}>
+              <View
+                style={{
+                  backgroundColor: isActive ? COLORS.primary : (isDark ? COLORS.dark.surface : COLORS.surface),
+                  paddingHorizontal: 10,
+                  paddingVertical: 8,
+                  borderRadius: 20,
+                  borderWidth: 1,
+                  borderColor: isActive ? COLORS.primary : borderColor,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 2, height: 2 },
+                  shadowOpacity: 0.12,
+                  shadowRadius: 4,
+                  elevation: 3,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontWeight: '600',
+                    color: isActive ? '#FFFFFF' : textColor,
+                  }}
+                >
+                  {f.label}
+                </Text>
+              </View>
+            </AnimatedPressable>
+          );
+        })}
       </View>
 
       {/* Loading indicator */}
@@ -341,7 +336,7 @@ export default function MapScreen() {
         <View
           style={{
             position: 'absolute',
-            top: insets.top + 70,
+            top: insets.top + 60,
             alignSelf: 'center',
             backgroundColor: isDark ? COLORS.dark.surface : COLORS.surface,
             paddingHorizontal: 16,
