@@ -30,6 +30,12 @@ const TABS = [
     icon: 'event' as const,
     label: 'Schedule',
   },
+  {
+    name: 'map',
+    route: '/(tabs)/map' as const,
+    icon: 'map' as const,
+    label: 'Map',
+  },
 ];
 
 export default function TabLayout() {
@@ -48,10 +54,11 @@ export default function TabLayout() {
         <Stack.Screen name="identify" />
         <Stack.Screen name="wellness" />
         <Stack.Screen name="schedule" />
+        <Stack.Screen name="map" />
       </Stack>
       <FloatingTabBar
         tabs={TABS}
-        containerWidth={320}
+        containerWidth={360}
         borderRadius={35}
         bottomMargin={20}
       />

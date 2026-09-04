@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ImageSourcePropType,
+  Switch,
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -112,6 +113,101 @@ function FormField({
   );
 }
 
+function TagInput({
+  tags,
+  onTagsChange,
+  placeholder,
+  color,
+}: {
+  tags: string[];
+  onTagsChange: (tags: string[]) => void;
+  placeholder: string;
+  color: string;
+}) {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
+  const [inputValue, setInputValue] = useState('');
+  const textColor = isDark ? COLORS.dark.text : COLORS.text;
+  const inputBg = isDark ? COLORS.dark.surfaceSecondary : COLORS.surfaceSecondary;
+  const borderColor = isDark ? COLORS.dark.border : COLORS.border;
+
+  const addTag = () => {
+    const trimmed = inputValue.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      onTagsChange([...tags, trimmed]);
+    }
+    setInputValue('');
+  };
+
+  const removeTag = (tag: string) => {
+    console.log('[TagInput] Remove tag:', tag);
+    onTagsChange(tags.filter((t) => t !== tag));
+  };
+
+  return (
+    <View style={{ gap: 8 }}>
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <TextInput
+          value={inputValue}
+          onChangeText={setInputValue}
+          placeholder={placeholder}
+          placeholderTextColor={COLORS.textTertiary}
+          style={{
+            flex: 1,
+            backgroundColor: inputBg,
+            borderRadius: 12,
+            paddingHorizontal: 14,
+            paddingVertical: 10,
+            fontSize: 15,
+            color: textColor,
+            borderWidth: 1,
+            borderColor: borderColor,
+          }}
+          returnKeyType="done"
+          onSubmitEditing={addTag}
+          blurOnSubmit={false}
+        />
+        <TouchableOpacity
+          onPress={addTag}
+          style={{
+            width: 42,
+            height: 42,
+            borderRadius: 12,
+            backgroundColor: color + '20',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <Plus size={18} color={color} />
+        </TouchableOpacity>
+      </View>
+      {tags.length > 0 ? (
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {tags.map((tag) => (
+            <View
+              key={tag}
+              style={{
+                backgroundColor: color + '20',
+                paddingHorizontal: 10,
+                paddingVertical: 5,
+                borderRadius: 20,
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 5,
+              }}
+            >
+              <Text style={{ fontSize: 13, fontWeight: '600', color }}>{tag}</Text>
+              <TouchableOpacity onPress={() => removeTag(tag)}>
+                <X size={12} color={color} />
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+      ) : null}
+    </View>
+  );
+}
+
 export default function AddPetScreen() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
@@ -122,6 +218,7 @@ export default function AddPetScreen() {
   const textColor = isDark ? COLORS.dark.text : COLORS.text;
   const textSecondary = isDark ? COLORS.dark.textSecondary : COLORS.textSecondary;
   const inputBg = isDark ? COLORS.dark.surfaceSecondary : COLORS.surfaceSecondary;
+  const borderColor = isDark ? COLORS.dark.border : COLORS.border;
 
   const [name, setName] = useState('');
   const [species, setSpecies] = useState<Species>('dog');
@@ -133,6 +230,16 @@ export default function AddPetScreen() {
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [nameError, setNameError] = useState('');
+
+  // New fields
+  const [dietSummary, setDietSummary] = useState('');
+  const [likes, setLikes] = useState<string[]>([]);
+  const [dislikes, setDislikes] = useState<string[]>([]);
+  const [favChewToys, setFavChewToys] = useState<string[]>([]);
+  const [litterCount, setLitterCount] = useState('');
+  const [microchipId, setMicrochipId] = useState('');
+  const [registrationNumber, setRegistrationNumber] = useState('');
+  const [isPublic, setIsPublic] = useState(false);
 
   const handlePickPhoto = async () => {
     console.log('[AddPet] Pick photo pressed');
@@ -230,6 +337,14 @@ export default function AddPetScreen() {
         gender,
         notes: notes.trim() || null,
         photo_url: photoUrl,
+        diet_summary: dietSummary.trim() || null,
+        likes: likes.length > 0 ? likes : null,
+        dislikes: dislikes.length > 0 ? dislikes : null,
+        fav_chew_toys: favChewToys.length > 0 ? favChewToys : null,
+        litter_count: litterCount ? parseInt(litterCount, 10) : null,
+        microchip_id: microchipId.trim() || null,
+        registration_number: registrationNumber.trim() || null,
+        is_public: isPublic,
       };
 
       console.log('[AddPet] Inserting pet:', petData.name, petData.species);
@@ -394,7 +509,7 @@ export default function AddPetScreen() {
               fontSize: 16,
               color: textColor,
               borderWidth: 1,
-              borderColor: nameError ? COLORS.danger : (isDark ? COLORS.dark.border : COLORS.border),
+              borderColor: nameError ? COLORS.danger : borderColor,
             }}
             autoFocus
             returnKeyType="next"
@@ -431,7 +546,7 @@ export default function AddPetScreen() {
               fontSize: 16,
               color: textColor,
               borderWidth: 1,
-              borderColor: isDark ? COLORS.dark.border : COLORS.border,
+              borderColor: borderColor,
             }}
             returnKeyType="next"
           />
@@ -455,7 +570,7 @@ export default function AddPetScreen() {
                   fontSize: 16,
                   color: textColor,
                   borderWidth: 1,
-                  borderColor: isDark ? COLORS.dark.border : COLORS.border,
+                  borderColor: borderColor,
                 }}
               />
             </FormField>
@@ -476,7 +591,7 @@ export default function AddPetScreen() {
                   fontSize: 16,
                   color: textColor,
                   borderWidth: 1,
-                  borderColor: isDark ? COLORS.dark.border : COLORS.border,
+                  borderColor: borderColor,
                 }}
               />
             </FormField>
@@ -492,6 +607,131 @@ export default function AddPetScreen() {
               console.log('[AddPet] Gender changed to:', v);
               setGender(v);
             }}
+          />
+        </FormField>
+
+        {/* Diet summary */}
+        <FormField label="Diet Summary">
+          <TextInput
+            value={dietSummary}
+            onChangeText={setDietSummary}
+            placeholder="e.g. Raw diet, twice daily"
+            placeholderTextColor={COLORS.textTertiary}
+            style={{
+              backgroundColor: inputBg,
+              borderRadius: 12,
+              paddingHorizontal: 14,
+              paddingVertical: 12,
+              fontSize: 16,
+              color: textColor,
+              borderWidth: 1,
+              borderColor: borderColor,
+            }}
+            returnKeyType="next"
+          />
+        </FormField>
+
+        {/* Likes */}
+        <FormField label="Likes">
+          <TagInput
+            tags={likes}
+            onTagsChange={(tags) => {
+              console.log('[AddPet] Likes updated:', tags);
+              setLikes(tags);
+            }}
+            placeholder="e.g. Fetch, swimming..."
+            color="#4CAF82"
+          />
+        </FormField>
+
+        {/* Dislikes */}
+        <FormField label="Dislikes">
+          <TagInput
+            tags={dislikes}
+            onTagsChange={(tags) => {
+              console.log('[AddPet] Dislikes updated:', tags);
+              setDislikes(tags);
+            }}
+            placeholder="e.g. Loud noises..."
+            color="#FC8181"
+          />
+        </FormField>
+
+        {/* Favourite chew toys */}
+        <FormField label="Favourite Chew Toys">
+          <TagInput
+            tags={favChewToys}
+            onTagsChange={(tags) => {
+              console.log('[AddPet] Fav chew toys updated:', tags);
+              setFavChewToys(tags);
+            }}
+            placeholder="e.g. Rope toy, Kong..."
+            color="#F6AD55"
+          />
+        </FormField>
+
+        {/* Litter count (female only) */}
+        {gender === 'female' ? (
+          <FormField label="Litter Count">
+            <TextInput
+              value={litterCount}
+              onChangeText={setLitterCount}
+              placeholder="e.g. 2"
+              placeholderTextColor={COLORS.textTertiary}
+              keyboardType="number-pad"
+              style={{
+                backgroundColor: inputBg,
+                borderRadius: 12,
+                paddingHorizontal: 14,
+                paddingVertical: 12,
+                fontSize: 16,
+                color: textColor,
+                borderWidth: 1,
+                borderColor: borderColor,
+              }}
+            />
+          </FormField>
+        ) : null}
+
+        {/* Microchip ID */}
+        <FormField label="Microchip ID">
+          <TextInput
+            value={microchipId}
+            onChangeText={setMicrochipId}
+            placeholder="e.g. 985112345678901"
+            placeholderTextColor={COLORS.textTertiary}
+            style={{
+              backgroundColor: inputBg,
+              borderRadius: 12,
+              paddingHorizontal: 14,
+              paddingVertical: 12,
+              fontSize: 16,
+              color: textColor,
+              borderWidth: 1,
+              borderColor: borderColor,
+            }}
+            returnKeyType="next"
+          />
+        </FormField>
+
+        {/* Registration number */}
+        <FormField label="Registration Number">
+          <TextInput
+            value={registrationNumber}
+            onChangeText={setRegistrationNumber}
+            placeholder="e.g. AKC-123456"
+            placeholderTextColor={COLORS.textTertiary}
+            style={{
+              backgroundColor: inputBg,
+              borderRadius: 12,
+              paddingHorizontal: 14,
+              paddingVertical: 12,
+              fontSize: 16,
+              color: textColor,
+              borderWidth: 1,
+              borderColor: borderColor,
+            }}
+            returnKeyType="next"
           />
         </FormField>
 
@@ -512,12 +752,44 @@ export default function AddPetScreen() {
               fontSize: 16,
               color: textColor,
               borderWidth: 1,
-              borderColor: isDark ? COLORS.dark.border : COLORS.border,
+              borderColor: borderColor,
               minHeight: 100,
               textAlignVertical: 'top',
             }}
           />
         </FormField>
+
+        {/* Show on breeder map toggle */}
+        <View
+          style={{
+            backgroundColor: surface,
+            borderRadius: 14,
+            padding: 16,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderWidth: 1,
+            borderColor: borderColor,
+          }}
+        >
+          <View style={{ flex: 1, gap: 2 }}>
+            <Text style={{ fontSize: 15, fontWeight: '700', color: textColor }}>
+              Show on breeder map
+            </Text>
+            <Text style={{ fontSize: 13, color: textSecondary }}>
+              Make this pet visible to other breeders on the map
+            </Text>
+          </View>
+          <Switch
+            value={isPublic}
+            onValueChange={(v) => {
+              console.log('[AddPet] Show on map toggled:', v);
+              setIsPublic(v);
+            }}
+            trackColor={{ false: borderColor, true: COLORS.primary + '80' }}
+            thumbColor={isPublic ? COLORS.primary : '#FFFFFF'}
+          />
+        </View>
 
         {/* Save button */}
         <AnimatedPressable onPress={handleSave} disabled={saving}>

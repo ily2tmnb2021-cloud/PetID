@@ -25,6 +25,10 @@ export default function TabLayout() {
         <Icon sf="calendar" />
         <Label>Schedule</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="map">
+        <Icon sf="map.fill" />
+        <Label>Map</Label>
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
