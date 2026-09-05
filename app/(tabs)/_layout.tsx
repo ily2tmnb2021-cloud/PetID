@@ -36,6 +36,12 @@ const TABS = [
     icon: 'map' as const,
     label: 'Map',
   },
+  {
+    name: 'breeders',
+    route: '/(tabs)/breeders' as const,
+    icon: 'favorite-border' as const,
+    label: 'Breeders',
+  },
 ];
 
 export default function TabLayout() {
@@ -55,10 +61,11 @@ export default function TabLayout() {
         <Stack.Screen name="wellness" />
         <Stack.Screen name="schedule" />
         <Stack.Screen name="map" />
+        <Stack.Screen name="breeders" />
       </Stack>
       <FloatingTabBar
         tabs={TABS}
-        containerWidth={360}
+        containerWidth={400}
         borderRadius={35}
         bottomMargin={20}
       />

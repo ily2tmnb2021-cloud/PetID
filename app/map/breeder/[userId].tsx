@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   useColorScheme,
   ActivityIndicator,
   ImageSourcePropType,
+  GestureResponderEvent,
 } from 'react-native';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { Image } from 'expo-image';
@@ -14,6 +15,7 @@ import { MessageCircle, MapPin, Award, CheckCircle } from 'lucide-react-native';
 import { COLORS, SPECIES_COLORS } from '@/constants/Colors';
 import { supabase, BreederProfile, Pet } from '@/utils/supabase';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
+import PawBurst, { PawBurstHandle } from '@/components/PawBurst';
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -38,6 +40,7 @@ export default function BreederProfileScreen() {
   const [pets, setPets] = useState<Pet[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const pawBurstRef = useRef<PawBurstHandle>(null);
 
   const fetchData = useCallback(async () => {
     if (!userId) return;
@@ -71,8 +74,9 @@ export default function BreederProfileScreen() {
     fetchData();
   }, [fetchData]);
 
-  const handleMessage = async () => {
-    console.log('[BreederProfile] Message pressed for user:', userId);
+  const handleMessage = async (evt: GestureResponderEvent) => {
+    console.log('[BreederProfile] Send Message pressed for user:', userId);
+    pawBurstRef.current?.burst(evt.nativeEvent.pageX, evt.nativeEvent.pageY);
     if (!currentUserId || !userId) return;
 
     // Find or create conversation
@@ -197,7 +201,7 @@ export default function BreederProfileScreen() {
           </View>
 
           {!isOwnProfile ? (
-            <AnimatedPressable onPress={handleMessage} style={{ width: '100%' }}>
+            <AnimatedPressable onPress={(evt) => handleMessage(evt as unknown as GestureResponderEvent)} style={{ width: '100%' }}>
               <View
                 style={{
                   backgroundColor: COLORS.primary,
@@ -327,6 +331,7 @@ export default function BreederProfileScreen() {
           ) : null}
         </View>
       </ScrollView>
+      <PawBurst ref={pawBurstRef} />
     </View>
   );
 }

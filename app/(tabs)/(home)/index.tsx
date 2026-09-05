@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   RefreshControl,
   ImageSourcePropType,
+  GestureResponderEvent,
 } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -18,6 +19,7 @@ import { supabase, Pet } from '@/utils/supabase';
 import { AnimatedPressable } from '@/components/AnimatedPressable';
 import { PetCardSkeleton } from '@/components/SkeletonLoader';
 import { useSubscription } from '@/contexts/SubscriptionContext';
+import PawBurst, { PawBurstHandle } from '@/components/PawBurst';
 
 function resolveImageSource(source: string | number | ImageSourcePropType | undefined): ImageSourcePropType {
   if (!source) return { uri: '' };
@@ -100,7 +102,15 @@ function PetAvatar({ pet, size = 64 }: { pet: Pet; size?: number }) {
   );
 }
 
-function PetCard({ pet, index }: { pet: Pet; index: number }) {
+function PetCard({
+  pet,
+  index,
+  onCardPress,
+}: {
+  pet: Pet;
+  index: number;
+  onCardPress: (evt: GestureResponderEvent) => void;
+}) {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const router = useRouter();
@@ -115,8 +125,9 @@ function PetCard({ pet, index }: { pet: Pet; index: number }) {
   const weightText = pet.weight_kg != null ? `${pet.weight_kg}kg` : null;
   const metaText = [ageText, weightText].filter(Boolean).join(' · ');
 
-  const handleViewDetails = () => {
+  const handleViewDetails = (evt: GestureResponderEvent) => {
     console.log('[MyPets] View details pressed for pet:', pet.id, pet.name);
+    onCardPress(evt);
     router.push(`/pet/${pet.id}`);
   };
 
@@ -127,7 +138,7 @@ function PetCard({ pet, index }: { pet: Pet; index: number }) {
 
   return (
     <AnimatedListItem index={index}>
-      <AnimatedPressable onPress={handleViewDetails}>
+      <AnimatedPressable onPress={(evt) => handleViewDetails(evt as unknown as GestureResponderEvent)}>
         <View
           style={{
             backgroundColor: surface,
@@ -183,7 +194,7 @@ function PetCard({ pet, index }: { pet: Pet; index: number }) {
               </Text>
             ) : null}
             <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
-              <AnimatedPressable onPress={handleViewDetails}>
+              <AnimatedPressable onPress={(evt) => handleViewDetails(evt as unknown as GestureResponderEvent)}>
                 <View
                   style={{
                     backgroundColor: COLORS.primaryMuted,
@@ -311,6 +322,7 @@ export default function MyPetsScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const { isPro } = useSubscription();
+  const pawBurstRef = useRef<PawBurstHandle>(null);
 
   const bg = isDark ? COLORS.dark.background : COLORS.background;
 
@@ -423,7 +435,16 @@ export default function MyPetsScreen() {
         <FlatList
           data={pets}
           keyExtractor={(item) => item.id}
-          renderItem={({ item, index }) => <PetCard pet={item} index={index} />}
+          renderItem={({ item, index }) => (
+              <PetCard
+                pet={item}
+                index={index}
+                onCardPress={(evt) => {
+                  console.log('[MyPets] Pet card tapped, firing PawBurst');
+                  pawBurstRef.current?.burst(evt.nativeEvent.pageX, evt.nativeEvent.pageY);
+                }}
+              />
+            )}
           contentContainerStyle={{
             paddingHorizontal: 16,
             paddingTop: 16,
@@ -440,6 +461,7 @@ export default function MyPetsScreen() {
           showsVerticalScrollIndicator={false}
         />
       )}
+      <PawBurst ref={pawBurstRef} />
     </View>
   );
 }

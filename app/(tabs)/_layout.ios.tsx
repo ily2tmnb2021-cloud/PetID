@@ -29,6 +29,10 @@ export default function TabLayout() {
         <Icon sf="map.fill" />
         <Label>Map</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="breeders">
+        <Icon sf="heart.circle.fill" />
+        <Label>Breeders</Label>
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
