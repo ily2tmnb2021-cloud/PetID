@@ -291,7 +291,7 @@ export default function MapScreen() {
       <View
         style={{
           position: 'absolute',
-          top: insets.top + 70,
+          top: insets.top + 140,
           left: 12,
           flexDirection: 'column',
           gap: 8,
